@@ -185,14 +185,14 @@ fn test_sitemap_writer_write_url_with_time_feature() -> anyhow::Result<()> {
     #[rustfmt::skip]
     writer.write(
         Url::loc("http://www.example.com/catalog?item=73&desc=vacation_new_zealand")?
-            // `time::Date` support
+            // `::time::Date` support
             .lastmod(::time::macros::date!(2004-12-23))?
             .changefreq(Changefreq::Weekly)?
     )?;
     #[rustfmt::skip]
     writer.write(
         Url::loc("http://www.example.com/catalog?item=74&desc=vacation_newfoundland")?
-            // `time::DateTime` support
+            // `::time::OffsetDateTime` support
             .lastmod(::time::macros::datetime!(2004-12-23 18:00:15 +00:00))?
             .priority(0.3)?
     )?;

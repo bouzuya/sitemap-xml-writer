@@ -103,12 +103,13 @@ fn test_sitemap_index_writer_write_sitemap_with_time_feature() -> anyhow::Result
     let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
     writer.write(
         Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
-            .lastmod("2004-10-01T18:23:17+00:00")?,
+            // `::time::OffsetDateTime` support
+            .lastmod(::time::macros::datetime!(2004-10-01 18:23:17 +00:00))?,
     )?;
     #[rustfmt::skip]
     writer.write(
         Sitemap::loc("http://www.example.com/sitemap2.xml.gz")?
-            // `time::Date` and `time::DateTime` are supported.
+            // `::time::Date` support
             .lastmod(::time::macros::date!(2005-01-01))?,
     )?;
     writer.end()?;
@@ -119,7 +120,7 @@ fn test_sitemap_index_writer_write_sitemap_with_time_feature() -> anyhow::Result
         r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
         r#"<sitemap>"#,
         r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
-        r#"<lastmod>2004-10-01T18:23:17+00:00</lastmod>"#,
+        r#"<lastmod>2004-10-01T18:23:17.000000000Z</lastmod>"#,
         r#"</sitemap>"#,
         r#"<sitemap>"#,
         r#"<loc>http://www.example.com/sitemap2.xml.gz</loc>"#,
