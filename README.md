@@ -1,8 +1,8 @@
-# sitemaps
+# sitemap-xml-writer
 
-The sitemap-xml-writer crate provides writers for [`sitemap.xml`](https://www.sitemaps.org/).
+A Rust library for writing [`sitemap.xml`](https://www.sitemaps.org/).
 
-[![crates.io](https://img.shields.io/crates/v/sitemap-xml-writer)](https://docs.rs/crate/sitemap-xml-writer)
+[![crates.io](https://img.shields.io/crates/v/sitemap-xml-writer)](https://crates.io/crates/sitemap-xml-writer)
 [![docs.rs](https://img.shields.io/docsrs/sitemap-xml-writer)](https://docs.rs/crate/sitemap-xml-writer)
 
 ## Feature flags
