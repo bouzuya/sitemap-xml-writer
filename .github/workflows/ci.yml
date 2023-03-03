@@ -19,7 +19,7 @@ jobs:
       - run: cargo test --verbose --features ${{ matrix.features }}
     strategy:
       matrix:
-        features: ["default", "time", "url", "time,url"]
+        features: ["default", "chrono", "time", "url", "chrono,time,url"]
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu

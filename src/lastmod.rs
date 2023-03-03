@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Debug};
 
 #[cfg(feature = "time")]
 use time::format_description::well_known::Iso8601;
@@ -44,6 +44,31 @@ impl<'a> TryFrom<&'a str> for Lastmod<'a> {
     }
 }
 
+#[cfg(feature = "chrono")]
+impl<'a, T> TryFrom<::chrono::DateTime<T>> for Lastmod<'a>
+where
+    T: ::chrono::TimeZone,
+    <T as ::chrono::TimeZone>::Offset: ::std::fmt::Display,
+{
+    type Error = Error;
+
+    fn try_from(value: ::chrono::DateTime<T>) -> Result<Self, Self::Error> {
+        let s = value.to_rfc3339();
+        Ok(Self(Cow::Owned(s)))
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl<'a> TryFrom<::chrono::NaiveDate> for Lastmod<'a> {
+    type Error = Error;
+
+    fn try_from(value: ::chrono::NaiveDate) -> Result<Self, Self::Error> {
+        // `chrono::NaiveDate` debug output format is "%Y-%m-%d"
+        let s = format!("{:?}", value);
+        Ok(Self(Cow::Owned(s)))
+    }
+}
+
 #[cfg(feature = "time")]
 impl<'a> TryFrom<time::Date> for Lastmod<'a> {
     type Error = Error;
@@ -79,9 +104,41 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "chrono")]
+    #[test]
+    fn test_chrono_date_time() -> anyhow::Result<()> {
+        let lastmod = Lastmod::try_from(::chrono::DateTime::parse_from_rfc3339(
+            "2004-12-23T18:00:15+00:00",
+        )?)?;
+        assert_eq!(lastmod.into_inner(), "2004-12-23T18:00:15+00:00");
+
+        let lastmod = Lastmod::try_from(::chrono::DateTime::parse_from_rfc3339(
+            "2004-12-23T18:00:15.123456789+09:00",
+        )?)?;
+        assert_eq!(lastmod.into_inner(), "2004-12-23T18:00:15.123456789+09:00");
+        Ok(())
+    }
+
+    #[cfg(feature = "chrono")]
+    #[test]
+    fn test_chrono_naive_date() -> anyhow::Result<()> {
+        let lastmod = Lastmod::try_from(::chrono::NaiveDate::parse_from_str(
+            "2005-01-01",
+            "%Y-%m-%d",
+        )?)?;
+        assert_eq!(lastmod.into_inner(), "2005-01-01");
+
+        let lastmod = Lastmod::try_from(::chrono::NaiveDate::parse_from_str(
+            "2023-01-02",
+            "%Y-%m-%d",
+        )?)?;
+        assert_eq!(lastmod.into_inner(), "2023-01-02");
+        Ok(())
+    }
+
     #[cfg(feature = "time")]
     #[test]
-    fn test_date() -> anyhow::Result<()> {
+    fn test_time_date() -> anyhow::Result<()> {
         #[rustfmt::skip]
         let lastmod = Lastmod::try_from(time::macros::date!(2005-01-01))?;
         assert_eq!(lastmod.into_inner(), "2005-01-01");
@@ -90,7 +147,7 @@ mod tests {
 
     #[cfg(feature = "time")]
     #[test]
-    fn test_date_time() -> anyhow::Result<()> {
+    fn test_time_offset_date_time() -> anyhow::Result<()> {
         #[rustfmt::skip]
         let lastmod = Lastmod::try_from(time::macros::datetime!(2004-12-23 18:00:15 +00:00))?;
         assert_eq!(lastmod.into_inner(), "2004-12-23T18:00:15.000000000Z");

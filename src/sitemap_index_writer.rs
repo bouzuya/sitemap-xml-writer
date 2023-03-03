@@ -97,6 +97,47 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
+/// The following example using `chrono` crate types.
+///
+#[cfg_attr(feature = "chrono", doc = "```rust")]
+#[cfg_attr(not(feature = "chrono"), doc = "```rust,ignore")]
+/// use sitemap_xml_writer::{SitemapIndexWriter, Sitemap};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write(
+///     Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
+///         // `::chrono::DateTime` support
+///         .lastmod(::chrono::DateTime::parse_from_rfc3339("2004-10-01T18:23:17+00:00")?)?
+/// )?;
+/// writer.write(
+///     Sitemap::loc("http://www.example.com/sitemap2.xml.gz")?
+///         // `::chrono::NaiveDate` support
+///         .lastmod(::chrono::NaiveDate::parse_from_str("2005-01-01", "%Y-%m-%d")?)?,
+/// )?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
+///         r#"<lastmod>2004-10-01T18:23:17+00:00</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap2.xml.gz</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"</sitemapindex>"#
+///     )
+/// );
+/// #     Ok(())
+/// # }
+/// ```
+///
 /// The following example using `time` crate types.
 ///
 #[cfg_attr(feature = "time", doc = "```rust")]

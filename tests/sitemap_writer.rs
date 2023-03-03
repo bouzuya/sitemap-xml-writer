@@ -168,6 +168,75 @@ fn test_sitemap_writer_write_url_with_url_feature() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "chrono")]
+#[test]
+fn test_sitemap_writer_write_url_with_chrono_feature() -> anyhow::Result<()> {
+    let mut writer = SitemapWriter::start(Cursor::new(Vec::new()))?;
+    writer.write(
+        Url::loc("http://www.example.com/")?
+            .lastmod("2005-01-01")?
+            .changefreq("monthly")?
+            .priority("0.8")?,
+    )?;
+    writer.write(
+        Url::loc("http://www.example.com/catalog?item=12&desc=vacation_hawaii")?
+            .changefreq(Changefreq::Monthly)?,
+    )?;
+    #[rustfmt::skip]
+    writer.write(
+        Url::loc("http://www.example.com/catalog?item=73&desc=vacation_new_zealand")?
+            // `::chrono::NaiveDate` support
+            .lastmod(::chrono::NaiveDate::parse_from_str("2004-12-23", "%Y-%m-%d")?)?
+            .changefreq(Changefreq::Weekly)?
+    )?;
+    writer.write(
+        Url::loc("http://www.example.com/catalog?item=74&desc=vacation_newfoundland")?
+            // `::chrono::DateTime` support
+            .lastmod(::chrono::DateTime::parse_from_rfc3339(
+                "2004-12-23T18:00:15+00:00",
+            )?)?
+            .priority(0.3)?,
+    )?;
+    writer.write(
+        Url::loc("http://www.example.com/catalog?item=83&desc=vacation_usa")?
+            .lastmod("2004-11-23")?,
+    )?;
+    writer.end()?;
+    let actual = String::from_utf8(writer.into_inner().into_inner())?;
+    // Sample XML Sitemap in <https://sitemaps.org/protocol.html>
+    let expected = concat!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+        r#"<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+        r#"<url>"#,
+        r#"<loc>http://www.example.com/</loc>"#,
+        r#"<lastmod>2005-01-01</lastmod>"#,
+        r#"<changefreq>monthly</changefreq>"#,
+        r#"<priority>0.8</priority>"#,
+        r#"</url>"#,
+        r#"<url>"#,
+        r#"<loc>http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii</loc>"#,
+        r#"<changefreq>monthly</changefreq>"#,
+        r#"</url>"#,
+        r#"<url>"#,
+        r#"<loc>http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand</loc>"#,
+        r#"<lastmod>2004-12-23</lastmod>"#,
+        r#"<changefreq>weekly</changefreq>"#,
+        r#"</url>"#,
+        r#"<url>"#,
+        r#"<loc>http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland</loc>"#,
+        r#"<lastmod>2004-12-23T18:00:15+00:00</lastmod>"#,
+        r#"<priority>0.3</priority>"#,
+        r#"</url>"#,
+        r#"<url>"#,
+        r#"<loc>http://www.example.com/catalog?item=83&amp;desc=vacation_usa</loc>"#,
+        r#"<lastmod>2004-11-23</lastmod>"#,
+        r#"</url>"#,
+        r#"</urlset>"#
+    );
+    assert_eq!(actual, expected);
+    Ok(())
+}
+
 #[cfg(feature = "time")]
 #[test]
 fn test_sitemap_writer_write_url_with_time_feature() -> anyhow::Result<()> {

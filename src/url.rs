@@ -21,6 +21,18 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
+#[cfg_attr(all(feature = "chrono", feature = "url"), doc = "```rust")]
+#[cfg_attr(not(all(feature = "chrono", feature = "url")), doc = "```rust,ignore")]
+/// # use sitemap_xml_writer::{Changefreq, Url};
+/// # fn main() -> anyhow::Result<()> {
+/// Url::loc(::url::Url::parse("http://www.example.com/")?)?
+///     .lastmod(::chrono::NaiveDate::parse_from_str("2005-01-01", "%Y-%m-%d")?)?
+///     .changefreq(Changefreq::Monthly)?
+///     .priority(0.8)?;
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[cfg_attr(all(feature = "time", feature = "url"), doc = "```rust")]
 #[cfg_attr(not(all(feature = "time", feature = "url")), doc = "```rust,ignore")]
 /// # use sitemap_xml_writer::{Changefreq, Url};
