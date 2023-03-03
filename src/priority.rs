@@ -1,6 +1,9 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::borrow::Cow;
+
+static RE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"\A(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)\z"#).unwrap());
 
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum Error {
@@ -21,10 +24,6 @@ impl<'a> Priority<'a> {
 
     fn is_valid_format(s: &str) -> Result<(), Error> {
         // <https://www.w3.org/TR/xmlschema11-2/#decimal>
-        lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r#"\A(\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)\z"#).unwrap();
-        }
         if RE.is_match(s) {
             Ok(())
         } else {

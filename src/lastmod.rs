@@ -1,9 +1,20 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::borrow::Cow;
 
 #[cfg(feature = "time")]
 use time::format_description::well_known::Iso8601;
+
+static DATE_RE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"\A-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?\z"#
+            ).unwrap()
+});
+
+static DATE_TIME_RE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+                r#"\A-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?\z"#
+            ).unwrap()
+});
 
 // TODO: Error
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
@@ -26,15 +37,6 @@ impl<'a> TryFrom<&'a str> for Lastmod<'a> {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         // <https://www.w3.org/TR/xmlschema11-2/#date>
         // <https://www.w3.org/TR/xmlschema11-2/#dateTime>
-        lazy_static! {
-            static ref DATE_RE: Regex = Regex::new(
-                r#"\A-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?\z"#
-            ).unwrap();
-
-            static ref DATE_TIME_RE: Regex = Regex::new(
-                r#"\A-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?|(24:00:00(\.0+)?))(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?\z"#
-            ).unwrap();
-        }
         if !DATE_RE.is_match(value) && !DATE_TIME_RE.is_match(value) {
             return Err(Error);
         }
