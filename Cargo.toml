@@ -1,9 +1,13 @@
 [package]
 name = "sitemap-xml-writer"
 version = "0.0.0"
+authors = ["bouzuya <m@bouzuya.net>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A Rust library for writing sitemap.xml"
+repository = "https://github.com/bouzuya/sitemap-xml-writer"
+license = "MIT OR Apache-2.0"
+keywords = ["sitemap", "writer"]
+exclude = [".github"]
 
 [dependencies]
 chrono = { version = "0.4.23", optional = true }
