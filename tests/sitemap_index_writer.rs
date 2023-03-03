@@ -49,7 +49,7 @@ fn test_sitemap_index_writer_write_sitemap() -> anyhow::Result<()> {
         // If you want to ensure that the URL is Valid, use `::url::Url`.
         // If you use &str, the URL is assumed to be valid and only the length check and XML entity escaping are performed.
         Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap2.xml.gz")?)?
-            // <https://crates.io/crates/time> support (`time::Date`, `time::DateTime`)
+            // `time::Date` and `time::DateTime` are supported.
             .lastmod(::time::macros::date!(2005-01-01))?,
     )?;
     writer.end()?;

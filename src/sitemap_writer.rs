@@ -36,6 +36,86 @@ impl From<crate::sitemap_xml_writer::Error> for Error {
 type Result<T, E = Error> = std::result::Result<T, E>;
 
 /// A writer for sitemap file.
+///
+/// # Examples
+///
+/// The following example is a sitemap containing only one URL specified by `&str`.
+///
+/// ```rust
+/// use sitemap_xml_writer::{Changefreq, Lastmod, Loc, Priority, SitemapWriter, Url};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write("http://www.example.com/")?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<url>"#,
+///         r#"<loc>http://www.example.com/</loc>"#,
+///         r#"</url>"#,
+///         r#"</urlset>"#
+///     )
+/// );
+/// #    Ok(())
+/// # }
+/// ```
+///
+/// The following example is a sitemap that uses all the optional tags. It also includes an example using non-string types.
+///
+/// ```rust
+/// use sitemap_xml_writer::{Changefreq, SitemapWriter, Url};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write(
+///     Url::loc("http://www.example.com/")?
+///         .lastmod("2005-01-01")?
+///         .changefreq("monthly")?
+///         .priority("0.8")?,
+/// )?;
+/// writer.write(
+///     // <https://crates.io/crates/url> support
+///     // You can specify `::url::Url`.
+///     // If you want to ensure that the URL is valid, use `::url::Url`.
+///     // If you use &str, the URL is assumed to be valid and only the length
+///     // check and XML entity escaping are performed.
+///     Url::loc(::url::Url::parse("http://www.example.com/")?)?
+///         // `::time::Date` and `::time::OffsetDateTime` are supported.
+///         .lastmod(::time::macros::date!(2005-01-01))?
+///         .changefreq(Changefreq::Monthly)?
+///         .priority(0.8)?
+/// )?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<url>"#,
+///         r#"<loc>http://www.example.com/</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"<changefreq>monthly</changefreq>"#,
+///         r#"<priority>0.8</priority>"#,
+///         r#"</url>"#,
+///         r#"<url>"#,
+///         r#"<loc>http://www.example.com/</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"<changefreq>monthly</changefreq>"#,
+///         r#"<priority>0.8</priority>"#,
+///         r#"</url>"#,
+///         r#"</urlset>"#
+///     )
+/// );
+/// #     Ok(())
+/// # }
+/// ```
 pub struct SitemapWriter<W: Write> {
     writer: SitemapXmlWriter<W>,
     number_of_urls: usize,
@@ -44,14 +124,17 @@ pub struct SitemapWriter<W: Write> {
 impl<W: Write> SitemapWriter<W> {
     const MAX_NUMBER_OF_URLS: usize = 50_000;
 
+    /// Creates a new `SitemapWriter<W>`. At the same time, write the XML declaration and an opening `<urlset>` tag.
     pub fn start(inner: W) -> Result<Self> {
         Self::start_inner(inner, false)
     }
 
+    /// Creates a new `SitemapWriter<W>` with indentation enabled. At the same time, write the XML declaration and an opening `<urlset>` tag.
     pub fn start_with_indent(inner: W) -> Result<Self> {
         Self::start_inner(inner, true)
     }
 
+    /// Writes a `url` element.
     pub fn write<'a, U>(&mut self, url: U) -> Result<()>
     where
         U: SealedTryIntoUrl<'a>,
@@ -83,11 +166,13 @@ impl<W: Write> SitemapWriter<W> {
         Ok(())
     }
 
+    /// Writes a closing `</urlset>` tag.
     pub fn end(&mut self) -> Result<()> {
         self.writer.end_tag(b"urlset")?;
         Ok(())
     }
 
+    /// Unwraps this `SitemapWrite<W>`, returning the underlying writer.
     pub fn into_inner(self) -> W {
         self.writer.into_inner()
     }

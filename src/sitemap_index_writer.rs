@@ -30,6 +30,79 @@ impl From<crate::sitemap_xml_writer::Error> for Error {
 type Result<T, E = Error> = std::result::Result<T, E>;
 
 /// A writer for sitemap index file.
+///
+/// # Examples
+///
+/// The following example is a sitemap index containing only one URL specified by `&str`.
+///
+/// ```rust
+/// use sitemap_xml_writer::{SitemapIndexWriter, Sitemap};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write("http://www.example.com/sitemap1.xml.gz")?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
+///         r#"</sitemap>"#,
+///         r#"</sitemapindex>"#
+///     )
+/// );
+/// #    Ok(())
+/// # }
+/// ```
+///
+/// The following example is a sitemap that uses all the optional tags. It also
+/// includes an example using non-string types.
+///
+/// ```rust
+/// use sitemap_xml_writer::{SitemapIndexWriter, Sitemap};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write(
+///     Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
+///         .lastmod("2004-10-01T18:23:17+00:00")?
+/// )?;
+/// writer.write(
+///     // <https://crates.io/crates/url> support
+///     // If you want to ensure that the URL is Valid, use `::url::Url`.
+///     // If you use &str, the URL is assumed to be valid and only the length
+///     // check and XML entity escaping are performed.
+///     Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap2.xml.gz")?)?
+///         // `time::Date` and `time::DateTime` are supported.
+///         .lastmod(::time::macros::date!(2005-01-01))?,
+/// )?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
+///         r#"<lastmod>2004-10-01T18:23:17+00:00</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap2.xml.gz</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"</sitemapindex>"#
+///     )
+/// );
+/// #     Ok(())
+/// # }
+///
+
 pub struct SitemapIndexWriter<W: Write> {
     writer: SitemapXmlWriter<W>,
     number_of_sitemaps: usize,
@@ -38,14 +111,17 @@ pub struct SitemapIndexWriter<W: Write> {
 impl<W: Write> SitemapIndexWriter<W> {
     const MAX_NUMBER_OF_SITEMAPS: usize = 50_000;
 
+    /// Creates a new `SitemapIndexWriter<W>`. At the same time, write the XML declaration and an opening `<sitemapindex>` tag.
     pub fn start(inner: W) -> Result<Self> {
         Self::start_inner(inner, false)
     }
 
+    /// Creates a new `SitemapIndexWriter<W>` with indentation enabled. At the same time, write the XML declaration and an opening `<sitemapindex>` tag.
     pub fn start_with_indent(inner: W) -> Result<Self> {
         Self::start_inner(inner, true)
     }
 
+    /// Writes a `sitemap` element.
     pub fn write<'a, S>(&mut self, sitemap: S) -> Result<()>
     where
         S: SealedTryIntoSitemap<'a>,
@@ -69,11 +145,13 @@ impl<W: Write> SitemapIndexWriter<W> {
         Ok(())
     }
 
+    /// Writes a closing `</sitemapindex>` tag.
     pub fn end(&mut self) -> Result<()> {
         self.writer.end_tag(b"sitemapindex")?;
         Ok(())
     }
 
+    /// Unwraps this `SitemapIndexWrite<W>`, returning the underlying writer.
     pub fn into_inner(self) -> W {
         self.writer.into_inner()
     }

@@ -2,12 +2,19 @@
 #[derive(Clone, Copy, Debug, Eq, PartialEq, strum::AsRefStr, strum::EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum Changefreq {
+    /// `always`
     Always,
+    /// `hourly`
     Hourly,
+    /// `daily`
     Daily,
+    /// `weekly`
     Weekly,
+    /// `monthly`
     Monthly,
+    /// `yearly`
     Yearly,
+    /// `never`
     Never,
 }
 
