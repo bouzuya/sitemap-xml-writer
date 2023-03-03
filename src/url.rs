@@ -21,8 +21,8 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
-#[cfg_attr(feature = "time", doc = "```rust")]
-#[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+#[cfg_attr(all(feature = "time", feature = "url"), doc = "```rust")]
+#[cfg_attr(not(all(feature = "time", feature = "url")), doc = "```rust,ignore")]
 /// # use sitemap_xml_writer::{Changefreq, Url};
 /// # fn main() -> anyhow::Result<()> {
 /// Url::loc(::url::Url::parse("http://www.example.com/")?)?
@@ -32,6 +32,7 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// #     Ok(())
 /// # }
 /// ```
+///
 pub struct Url<'a> {
     pub(crate) loc: Cow<'a, str>,
     pub(crate) lastmod: Option<Cow<'a, str>>,
@@ -57,7 +58,14 @@ impl<'a> Url<'a> {
     /// # use sitemap_xml_writer::Url;
     /// # fn main() -> anyhow::Result<()> {
     /// Url::loc("http://www.example.com/")?;
+    /// #     Ok(())
+    /// # }
+    /// ```
     ///
+    #[cfg_attr(feature = "url", doc = "```rust")]
+    #[cfg_attr(not(feature = "url"), doc = "```rust,ignore")]
+    /// # use sitemap_xml_writer::Url;
+    /// # fn main() -> anyhow::Result<()> {
     /// Url::loc(::url::Url::parse("http://www.example.com/")?)?;
     /// #     Ok(())
     /// # }

@@ -97,7 +97,7 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
-/// The following example using non-string types.
+/// The following example using `time` crate types.
 ///
 #[cfg_attr(feature = "time", doc = "```rust")]
 #[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
@@ -107,15 +107,11 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # fn main() -> anyhow::Result<()> {
 /// let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
 /// writer.write(
-///     // <https://crates.io/crates/url> support
-///     // If you want to ensure that the URL is Valid, use `::url::Url`.
-///     // If you use &str, the URL is assumed to be valid and only the length
-///     // check and XML entity escaping are performed.
-///     Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap1.xml.gz")?)?
+///     Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
 ///         .lastmod(::time::macros::datetime!(2004-10-01 18:23:17+00:00))?
 /// )?;
 /// writer.write(
-///     Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap2.xml.gz")?)?
+///     Sitemap::loc("http://www.example.com/sitemap2.xml.gz")?
 ///         // `time::Date` and `time::DateTime` are supported.
 ///         .lastmod(::time::macros::date!(2005-01-01))?,
 /// )?;
@@ -141,7 +137,49 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
-
+/// The following example using `url` crate types.
+///
+#[cfg_attr(feature = "url", doc = "```rust")]
+#[cfg_attr(not(feature = "url"), doc = "```rust,ignore")]
+/// use sitemap_xml_writer::{SitemapIndexWriter, Sitemap};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
+/// writer.write(
+///     // <https://crates.io/crates/url> support
+///     // If you want to ensure that the URL is Valid, use `::url::Url`.
+///     // If you use &str, the URL is assumed to be valid and only the length
+///     // check and XML entity escaping are performed.
+///     Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap1.xml.gz")?)?
+///         .lastmod("2004-10-01T18:23:17+00:00")?
+/// )?;
+/// writer.write(
+///     Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap2.xml.gz")?)?
+///         .lastmod("2005-01-01")?,
+/// )?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
+///         r#"<lastmod>2004-10-01T18:23:17+00:00</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"<sitemap>"#,
+///         r#"<loc>http://www.example.com/sitemap2.xml.gz</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"</sitemap>"#,
+///         r#"</sitemapindex>"#
+///     )
+/// );
+/// #     Ok(())
+/// # }
+/// ```
+///
 pub struct SitemapIndexWriter<W: Write> {
     writer: SitemapXmlWriter<W>,
     number_of_sitemaps: usize,

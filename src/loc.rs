@@ -31,6 +31,7 @@ impl<'a> TryFrom<&'a str> for Loc<'a> {
     }
 }
 
+#[cfg(feature = "url")]
 impl<'a> TryFrom<url::Url> for Loc<'a> {
     type Error = Error;
 

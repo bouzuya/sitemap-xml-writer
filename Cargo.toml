@@ -11,7 +11,7 @@ regex = "1.7.1"
 strum = { version = "0.24", features = ["derive"] }
 thiserror = "1"
 time = { version = "0.3", features = ["formatting", "macros", "parsing"], optional = true }
-url = "2"
+url = { version = "2", optional = true }
 
 [dev-dependencies]
 anyhow = "1"
@@ -19,3 +19,4 @@ anyhow = "1"
 [features]
 default = []
 time = ["dep:time"]
+url = ["dep:url"]

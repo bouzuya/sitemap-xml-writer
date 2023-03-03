@@ -17,8 +17,8 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # }
 /// ```
 ///
-#[cfg_attr(feature = "time", doc = "```rust")]
-#[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+#[cfg_attr(all(feature = "time", feature = "url"), doc = "```rust")]
+#[cfg_attr(not(all(feature = "time", feature = "url")), doc = "```rust,ignore")]
 /// # use sitemap_xml_writer::Sitemap;
 /// # fn main() -> anyhow::Result<()> {
 /// Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap1.xml.gz")?)?
@@ -43,13 +43,24 @@ impl<'a> Sitemap<'a> {
     /// Builds a `sitemap` entry with the specified URL as the content of the
     /// `loc` child entry.
     ///
+    /// If you want to ensure that the URL is Valid, use `::url::Url`. If you
+    /// use &str, the URL is assumed to be valid and only the length check and
+    /// XML entity escaping are performed.
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use sitemap_xml_writer::Sitemap;
     /// # fn main() -> anyhow::Result<()> {
     /// Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?;
+    /// #     Ok(())
+    /// # }
+    /// ```
     ///
+    #[cfg_attr(feature = "url", doc = "```rust")]
+    #[cfg_attr(not(feature = "url"), doc = "```rust,ignore")]
+    /// # use sitemap_xml_writer::Sitemap;
+    /// # fn main() -> anyhow::Result<()> {
     /// let url = ::url::Url::parse("http://www.example.com/sitemap1.xml.gz")?;
     /// Sitemap::loc(url)?;
     /// #     Ok(())
