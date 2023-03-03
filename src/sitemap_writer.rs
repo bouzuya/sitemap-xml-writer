@@ -79,6 +79,35 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 ///         .changefreq("monthly")?
 ///         .priority("0.8")?,
 /// )?;
+/// writer.end()?;
+///
+/// assert_eq!(
+///     String::from_utf8(writer.into_inner().into_inner())?,
+///     concat!(
+///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+///         r#"<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+///         r#"<url>"#,
+///         r#"<loc>http://www.example.com/</loc>"#,
+///         r#"<lastmod>2005-01-01</lastmod>"#,
+///         r#"<changefreq>monthly</changefreq>"#,
+///         r#"<priority>0.8</priority>"#,
+///         r#"</url>"#,
+///         r#"</urlset>"#
+///     )
+/// );
+/// #     Ok(())
+/// # }
+/// ```
+///
+/// The following an example using non-string types.
+///
+#[cfg_attr(feature = "time", doc = "```rust")]
+#[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+/// use sitemap_xml_writer::{Changefreq, SitemapWriter, Url};
+/// use std::io::Cursor;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut writer = SitemapWriter::start(Cursor::new(Vec::new()))?;
 /// writer.write(
 ///     // <https://crates.io/crates/url> support
 ///     // You can specify `::url::Url`.
@@ -98,12 +127,6 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 ///     concat!(
 ///         r#"<?xml version="1.0" encoding="UTF-8"?>"#,
 ///         r#"<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
-///         r#"<url>"#,
-///         r#"<loc>http://www.example.com/</loc>"#,
-///         r#"<lastmod>2005-01-01</lastmod>"#,
-///         r#"<changefreq>monthly</changefreq>"#,
-///         r#"<priority>0.8</priority>"#,
-///         r#"</url>"#,
 ///         r#"<url>"#,
 ///         r#"<loc>http://www.example.com/</loc>"#,
 ///         r#"<lastmod>2005-01-01</lastmod>"#,

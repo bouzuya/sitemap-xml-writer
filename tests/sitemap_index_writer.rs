@@ -43,6 +43,41 @@ fn test_sitemap_index_writer_write_sitemap() -> anyhow::Result<()> {
         Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
             .lastmod("2004-10-01T18:23:17+00:00")?,
     )?;
+    writer.write(
+        // <https://crates.io/crates/url> support
+        // If you want to ensure that the URL is Valid, use `::url::Url`.
+        // If you use &str, the URL is assumed to be valid and only the length check and XML entity escaping are performed.
+        Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap2.xml.gz")?)?
+            .lastmod("2005-01-01")?,
+    )?;
+    writer.end()?;
+    let actual = String::from_utf8(writer.into_inner().into_inner())?;
+    // Sample XML Sitemap Index in <https://sitemaps.org/protocol.html>
+    let expected = concat!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>"#,
+        r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#,
+        r#"<sitemap>"#,
+        r#"<loc>http://www.example.com/sitemap1.xml.gz</loc>"#,
+        r#"<lastmod>2004-10-01T18:23:17+00:00</lastmod>"#,
+        r#"</sitemap>"#,
+        r#"<sitemap>"#,
+        r#"<loc>http://www.example.com/sitemap2.xml.gz</loc>"#,
+        r#"<lastmod>2005-01-01</lastmod>"#,
+        r#"</sitemap>"#,
+        r#"</sitemapindex>"#
+    );
+    assert_eq!(actual, expected);
+    Ok(())
+}
+
+#[cfg(feature = "time")]
+#[test]
+fn test_sitemap_index_writer_write_sitemap_with_time_feature() -> anyhow::Result<()> {
+    let mut writer = SitemapIndexWriter::start(Cursor::new(Vec::new()))?;
+    writer.write(
+        Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
+            .lastmod("2004-10-01T18:23:17+00:00")?,
+    )?;
     #[rustfmt::skip]
     writer.write(
         // <https://crates.io/crates/url> support

@@ -13,7 +13,14 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 /// # fn main() -> anyhow::Result<()> {
 /// Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
 ///     .lastmod("2004-10-01T18:23:17+00:00")?;
+/// #     Ok(())
+/// # }
+/// ```
 ///
+#[cfg_attr(feature = "time", doc = "```rust")]
+#[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+/// # use sitemap_xml_writer::Sitemap;
+/// # fn main() -> anyhow::Result<()> {
 /// Sitemap::loc(::url::Url::parse("http://www.example.com/sitemap1.xml.gz")?)?
 ///     .lastmod(::time::macros::datetime!(2004-10-01 18:23:17+00:00))?;
 /// #     Ok(())
@@ -65,7 +72,14 @@ impl<'a> Sitemap<'a> {
     /// # fn main() -> anyhow::Result<()> {
     /// Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
     ///     .lastmod("2004-10-01T18:23:17+00:00")?;
+    /// #     Ok(())
+    /// # }
+    /// ```
     ///
+    #[cfg_attr(feature = "time", doc = "```rust")]
+    #[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+    /// # use sitemap_xml_writer::Sitemap;
+    /// # fn main() -> anyhow::Result<()> {
     /// Sitemap::loc("http://www.example.com/sitemap1.xml.gz")?
     ///     .lastmod(::time::macros::datetime!(2004-10-01 18:23:17+00:00))?;
     /// #     Ok(())

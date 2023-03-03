@@ -17,5 +17,5 @@ url = "2"
 anyhow = "1"
 
 [features]
-default = ["time"]
+default = []
 time = ["dep:time"]

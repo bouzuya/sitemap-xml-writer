@@ -17,7 +17,14 @@ type Result<T, E = Error> = std::result::Result<T, E>;
 ///     .lastmod("2005-01-01")?
 ///     .changefreq("monthly")?
 ///     .priority("0.8")?;
+/// #     Ok(())
+/// # }
+/// ```
 ///
+#[cfg_attr(feature = "time", doc = "```rust")]
+#[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+/// # use sitemap_xml_writer::{Changefreq, Url};
+/// # fn main() -> anyhow::Result<()> {
 /// Url::loc(::url::Url::parse("http://www.example.com/")?)?
 ///     .lastmod(::time::macros::date!(2005-01-01))?
 ///     .changefreq(Changefreq::Monthly)?
@@ -101,7 +108,14 @@ impl<'a> Url<'a> {
     /// # fn main() -> anyhow::Result<()> {
     /// Url::loc("http://www.example.com/")?
     ///     .lastmod("2004-10-01T18:23:17+00:00")?;
+    /// #     Ok(())
+    /// # }
+    /// ```
     ///
+    #[cfg_attr(feature = "time", doc = "```rust")]
+    #[cfg_attr(not(feature = "time"), doc = "```rust,ignore")]
+    /// # use sitemap_xml_writer::Url;
+    /// # fn main() -> anyhow::Result<()> {
     /// Url::loc("http://www.example.com/")?
     ///     .lastmod(::time::macros::datetime!(2004-10-01 18:23:17+00:00))?;
     /// #     Ok(())
