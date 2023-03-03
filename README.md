@@ -2,6 +2,15 @@
 
 The sitemap-xml-writer crate provides writers for [`sitemap.xml`](https://www.sitemaps.org/).
 
+[![crates.io](https://img.shields.io/crates/v/sitemap-xml-writer)](https://docs.rs/crate/sitemap-xml-writer)
+[![docs.rs](https://img.shields.io/docsrs/sitemap-xml-writer)](https://docs.rs/crate/sitemap-xml-writer)
+
+## Feature flags
+
+- `"chrono"` ... `chrono::NaiveDate` and `chrono::DateTime` support
+- `"time"` ... `time::Date` and `time::OffsetDateTime` support
+- `"url"` ... `url::Url` support
+
 ## Usage
 
 ### Writing sitemap file
@@ -18,6 +27,7 @@ writer.write(
         .priority("0.8")?,
 )?;
 writer.end()?;
+
 let actual = String::from_utf8(writer.into_inner().into_inner())?;
 let expected = concat!(
     r#"<?xml version="1.0" encoding="UTF-8"?>"#,
@@ -45,6 +55,7 @@ writer.write(
         .lastmod("2004-10-01T18:23:17+00:00")?,
 )?;
 writer.end()?;
+
 let actual = String::from_utf8(writer.into_inner().into_inner())?;
 let expected = concat!(
     r#"<?xml version="1.0" encoding="UTF-8"?>"#,
