@@ -2,8 +2,10 @@
 
 A Rust library for writing [`sitemap.xml`](https://www.sitemaps.org/).
 
+[![ci](https://github.com/bouzuya/sitemap-xml-writer/workflows/ci/badge.svg)](https://github.com/bouzuya/sitemap-xml-writer/actions)
 [![crates.io](https://img.shields.io/crates/v/sitemap-xml-writer)](https://crates.io/crates/sitemap-xml-writer)
 [![docs.rs](https://img.shields.io/docsrs/sitemap-xml-writer)](https://docs.rs/crate/sitemap-xml-writer)
+[![license](https://img.shields.io/crates/l/sitemap-xml-writer)](#license)
 
 ## Feature flags
 
@@ -68,3 +70,12 @@ let expected = concat!(
 );
 assert_eq!(actual, expected);
 ```
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
